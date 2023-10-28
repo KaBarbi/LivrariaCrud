@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clietnes</title>
+  </head>
+  <body>
+    <h1>Adicionar Cliente</h1>
+    <form action="/clientes" method="post">
+      <table>
+        <tr>
+          <td>Nome</td>
+          <td><input type="text" name="nome" /></td>
+        </tr>
+        <tr>
+          <td>E-mail</td>
+          <td><input type="email" name="email" /></td>
+        </tr>
+        <tr>
+          <td>Senha</td>
+          <td><input type="password" name="senha" /></td>
+        </tr>
+        <tr>
+          <td>Telefone</td>
+          <td><input type="tel" name="telefone" /></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><input type="submit" value="Adicionar" /></td>
+        </tr>
+      </table>
+    </form>
+  </body>
+  <script>
+    // Script para validar as informações do formulário
+    function validarFormulario() {
+      // Obtém as informações do formulário
+      const nome = document.querySelector("input[name='nome']").value;
+      const email = document.querySelector("input[name='email']").value;
+      const senha = document.querySelector("input[name='senha']").value;
+      const telefone = document.querySelector("input[name='telefone']").value;
+
+      // Valida as informações do formulário
+      if (nome == "") {
+        alert("O campo nome é obrigatório.");
+        return false;
+      }
+
+      if (!email.includes("@")) {
+        alert("O campo email deve conter um endereço de e-mail válido.");
+        return false;
+      }
+
+      if (senha.length < 8) {
+        alert("A senha deve ter pelo menos 8 caracteres.");
+        return false;
+      }
+
+      if (!telefone.match(/^[0-9]{11}$/)) {
+        alert("O campo telefone deve conter 11 números.");
+        return false;
+      }
+
+      // As informações do formulário são válidas
+      return true;
+    }
+
+    // Valida as informações do formulário quando o usuário clica no botão "Adicionar"
+    document
+      .querySelector("button[type='submit']")
+      .addEventListener("click", function () {
+        if (!validarFormulario()) {
+          return false;
+        }
+      });
+  </script>
+</html>
