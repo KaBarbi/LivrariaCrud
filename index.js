@@ -47,6 +47,28 @@ app.post("/clientes", (req, res) => {
   });
 });
 
+// Rota para atualizar um cliente
+app.put("/clientes/:id", (req, res) => {
+  // Obter o ID do cliente da solicitação
+  const id = req.params.id;
+
+  // Obter os dados do cliente a serem atualizados
+  const { nome, email, senha, telefone } = req.body;
+
+  // Executar a consulta SQL para atualizar o cliente
+  const sql = `UPDATE clientes SET nome = '${nome}', email = '${email}', senha = '${senha}', telefone = '${telefone}' WHERE id = ${id}`;
+
+  connection.query(sql, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    // Responder com um código de status 200
+    res.status(200).send();
+  });
+});
+
 // Rota para deletar um cliente
 app.delete("/clientes/:id", (req, res) => {
   // Obter o ID do cliente da solicitação
@@ -66,4 +88,3 @@ app.delete("/clientes/:id", (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor está rodando na porta ${port}`);
 });
-//
