@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>clentes</title>
+    <title>Clientes</title>
   </head>
   <body>
     <!-- listar clientes cadastrados -->
@@ -15,88 +15,117 @@
           <th>Nome</th>
           <th>E-mail</th>
           <th>Telefone</th>
+          <th>Apagar</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
 
-    <!-- cadastrar novo cleinte -->
-    <h1>Realizar Cadastro</h1>
+    <!-- cadastrar novo cliente -->
+    <h1>Cadastrar Novo Cliente</h1>
     <form action="/clientes" method="post">
       <input type="text" name="nome" placeholder="Nome" />
-
       <input type="email" name="email" placeholder="E-mail" />
-
       <input type="tel" name="telefone" placeholder="Telefone" />
       <input type="password" name="senha" placeholder="Senha" />
       <button type="submit">Adicionar</button>
     </form>
-  </body>
-  <script>
-    //listar todos clientes cadastrados
-    const url = "http://localhost:3000/clientes";
 
-    fetch(url)
-      .then((response) => response.json())
-      .then((clients) => {
-        // Renderizar a lista de clientes
-        const tbody = document.querySelector("tbody");
-        clients.forEach((client) => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-        <td>${client.id}</td>
-        <td>${client.nome}</td>
-        <td>${client.email}</td>
-        <td>${client.telefone}</td>
-      `;
-          tbody.appendChild(tr);
-        });
-      });
+    <script>
+      // Função para excluir um cliente
+      function deleteClient(clientId) {
+        const url = `http://localhost:3000/clientes/${clientId}`;
 
-    // cadastrar novo cliente
-    const form = document.querySelector("form");
+        fetch(url, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (response.status === 204) {
+              // Remover a linha da tabela se a exclusão for bem-sucedida
+              const row = document.querySelector(`tr[data-id="${clientId}"]`);
+              if (row) {
+                row.remove();
+              }
+            } else {
+              console.error("Erro ao excluir o cliente.");
+            }
+          })
+          .catch((error) => {
+            console.error("Erro ao excluir o cliente:", error);
+          });
+      }
 
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      // Obter os dados do formulário
-      const nome = document.querySelector("input[name='nome']").value;
-      const email = document.querySelector("input[name='email']").value;
-      const telefone = document.querySelector("input[name='telefone']").value;
-      const senha = document.querySelector("input[name='senha']").value;
-
-      // Enviar os dados para o servidor
-
+      // Listar todos os clientes cadastrados
       const url = "http://localhost:3000/clientes";
-      const data = {
-        nome,
-        email,
-        telefone,
-        senha,
-      };
 
-      fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
+      fetch(url)
         .then((response) => response.json())
-        .then((client) => {
-          // Adicionar o novo cliente à lista de clientes
-
+        .then((clients) => {
+          // Renderizar a lista de clientes
           const tbody = document.querySelector("tbody");
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-        <td>${client.id}</td>
-        <td>${client.nome}</td>
-        <td>${client.email}</td>
-        <td>${client.telefone}</td>
-      `;
-          tbody.appendChild(tr);
-
+          clients.forEach((client) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${client.id}</td>
+              <td>${client.nome}</td>
+              <td>${client.email}</td>
+              <td>${client.telefone}</td>
+              <td>
+                <button onclick="deleteClient(${client.id})">Excluir</button>
+              </td>
+            `;
+            tr.setAttribute("data-id", client.id);
+            tbody.appendChild(tr);
+          });
         });
-    });
-  </script>
+
+      // Cadastrar novo cliente
+      const form = document.querySelector("form");
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        // Obter os dados do formulário
+        const nome = document.querySelector("input[name='nome']").value;
+        const email = document.querySelector("input[name='email']").value;
+        const telefone = document.querySelector("input[name='telefone']").value;
+        const senha = document.querySelector("input[name='senha']").value;
+
+        // Enviar os dados para o servidor
+
+        const url = "http://localhost:3000/clientes";
+        const data = {
+          nome,
+          email,
+          telefone,
+          senha,
+        };
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((client) => {
+            // Adicionar o novo cliente à lista de clientes
+            const tbody = document.querySelector("tbody");
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${client.id}</td>
+              <td>${client.nome}</td>
+              <td>${client.email}</td>
+              <td>${client.telefone}</td>
+              <td>
+                <button onclick="deleteClient(${client.id})">Excluir</button>
+              </td>
+            `;
+            tr.setAttribute("data-id", client.id);
+            tbody.appendChild(tr);
+          });
+      });
+    </script>
+  </body>
 </html>
