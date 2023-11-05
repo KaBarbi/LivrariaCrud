@@ -3,76 +3,196 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Clietnes</title>
+    <title>Clientes</title>
   </head>
   <body>
-    <h1>Adicionar Cliente</h1>
+    <!-- listar clientes cadastrados -->
+    <h1>Lista de clientes</h1>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Telefone</th>
+          <th>Apagar</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- cadastrar novo cliente -->
+    <h1>Cadastrar Novo Cliente</h1>
     <form action="/clientes" method="post">
-      <table>
-        <tr>
-          <td>Nome</td>
-          <td><input type="text" name="nome" /></td>
-        </tr>
-        <tr>
-          <td>E-mail</td>
-          <td><input type="email" name="email" /></td>
-        </tr>
-        <tr>
-          <td>Senha</td>
-          <td><input type="password" name="senha" /></td>
-        </tr>
-        <tr>
-          <td>Telefone</td>
-          <td><input type="tel" name="telefone" /></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td><input type="submit" value="Adicionar" /></td>
-        </tr>
-      </table>
+      <input type="text" name="nome" placeholder="Nome" />
+      <input type="email" name="email" placeholder="E-mail" />
+      <input type="tel" name="telefone" placeholder="Telefone" />
+      <input type="password" name="senha" placeholder="Senha" />
+      <button type="submit">Adicionar</button>
     </form>
-  </body>
-  <script>
-    // Script para validar as informações do formulário
-    function validarFormulario() {
-      // Obtém as informações do formulário
-      const nome = document.querySelector("input[name='nome']").value;
-      const email = document.querySelector("input[name='email']").value;
-      const senha = document.querySelector("input[name='senha']").value;
-      const telefone = document.querySelector("input[name='telefone']").value;
 
-      // Valida as informações do formulário
-      if (nome == "") {
-        alert("O campo nome é obrigatório.");
-        return false;
+    <h1>Atualizar Cliente</h1>
+    <form id="update-form">
+      <input type="text" name="clientId" placeholder="ID do Cliente" />
+      <input type="text" name="novoNome" placeholder="Novo Nome" />
+      <input type="email" name="novoEmail" placeholder="Novo E-mail" />
+      <input type="tel" name="novoTelefone" placeholder="Novo Telefone" />
+      <button type="submit">Atualizar</button>
+    </form>
+
+    <script>
+      // Função para excluir um cliente
+      function deleteClient(clientId) {
+        const url = `http://localhost:3000/clientes/${clientId}`;
+
+        fetch(url, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (response.status === 204) {
+              // Remover a linha da tabela se a exclusão for bem-sucedida
+              const row = document.querySelector(`tr[data-id="${clientId}"]`);
+              if (row) {
+                row.remove();
+              }
+            } else {
+              console.error("Erro ao excluir o cliente.");
+            }
+          })
+          .catch((error) => {
+            console.error("Erro ao excluir o cliente:", error);
+          });
       }
 
-      if (!email.includes("@")) {
-        alert("O campo email deve conter um endereço de e-mail válido.");
-        return false;
-      }
+      // Listar todos os clientes cadastrados
+      const url = "http://localhost:3000/clientes";
 
-      if (senha.length < 8) {
-        alert("A senha deve ter pelo menos 8 caracteres.");
-        return false;
-      }
+      fetch(url)
+        .then((response) => response.json())
+        .then((clients) => {
+          // Renderizar a lista de clientes
+          const tbody = document.querySelector("tbody");
+          clients.forEach((client) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${client.id}</td>
+              <td>${client.nome}</td>
+              <td>${client.email}</td>
+              <td>${client.telefone}</td>
+              <td>
+                <button onclick="deleteClient(${client.id})">Excluir</button>
+              </td>
+            `;
+            tr.setAttribute("data-id", client.id);
+            tbody.appendChild(tr);
+          });
+        });
 
-      if (!telefone.match(/^[0-9]{11}$/)) {
-        alert("O campo telefone deve conter 11 números.");
-        return false;
-      }
+      // Cadastrar novo cliente
+      const form = document.querySelector("form");
 
-      // As informações do formulário são válidas
-      return true;
-    }
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
 
-    // Valida as informações do formulário quando o usuário clica no botão "Adicionar"
-    document
-      .querySelector("button[type='submit']")
-      .addEventListener("click", function () {
-        if (!validarFormulario()) {
-          return false;
-        }
+        // Obter os dados do formulário
+        const nome = document.querySelector("input[name='nome']").value;
+        const email = document.querySelector("input[name='email']").value;
+        const telefone = document.querySelector("input[name='telefone']").value;
+        const senha = document.querySelector("input[name='senha']").value;
+
+        // Enviar os dados para o servidor
+
+        const url = "http://localhost:3000/clientes";
+        const data = {
+          nome,
+          email,
+          telefone,
+          senha,
+        };
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((client) => {
+            // Adicionar o novo cliente à lista de clientes
+            const tbody = document.querySelector("tbody");
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${client.id}</td>
+              <td>${client.nome}</td>
+              <td>${client.email}</td>
+              <td>${client.telefone}</td>
+              <td>
+                <button onclick="deleteClient(${client.id})">Excluir</button>
+              </td>
+            `;
+            tr.setAttribute("data-id", client.id);
+            tbody.appendChild(tr);
+          });
       });
-  </script>
+
+      // Função para atualizar um cliente
+      document.addEventListener("DOMContentLoaded", function () {
+        function updateClient(clientId, newData) {
+          const url = `http://localhost:3000/clientes/${clientId}`; // Inclua o ID na URL
+
+          fetch(url, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newData),
+          })
+            .then((response) => {
+              if (response.status === 200) {
+                const row = document.querySelector(`tr[data-id="${clientId}"]`);
+                if (row) {
+                  const cells = row.getElementsByTagName("td");
+                  cells[1].textContent = newData.novoNome;
+                  cells[2].textContent = newData.novoEmail;
+                  cells[3].textContent = newData.novoTelefone;
+                }
+              } else {
+                console.error("Erro ao atualizar o cliente.");
+              }
+            })
+            .catch((error) => {
+              console.error("Erro ao atualizar o cliente:", error);
+            });
+        }
+
+        const updateForm = document.getElementById("update-form");
+
+        updateForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          const clientId = document.querySelector(
+            "input[name='clientId']"
+          ).value;
+          const novoNome = document.querySelector(
+            "input[name='novoNome']"
+          ).value;
+          const novoEmail = document.querySelector(
+            "input[name='novoEmail']"
+          ).value;
+          const novoTelefone = document.querySelector(
+            "input[name='novoTelefone']"
+          ).value;
+
+          console.log("clientId:", clientId);
+          console.log("novoNome:", novoNome);
+          console.log("novoEmail:", novoEmail);
+          console.log("novoTelefone:", novoTelefone);
+          updateClient(clientId, { novoNome, novoEmail, novoTelefone });
+
+          updateForm.reset();
+        });
+      });
+    </script>
+  </body>
 </html>
