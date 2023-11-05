@@ -31,6 +31,15 @@
       <button type="submit">Adicionar</button>
     </form>
 
+    <h1>Atualizar Cliente</h1>
+    <form id="update-form">
+      <input type="text" name="clientId" placeholder="ID do Cliente" />
+      <input type="text" name="novoNome" placeholder="Novo Nome" />
+      <input type="email" name="novoEmail" placeholder="Novo E-mail" />
+      <input type="tel" name="novoTelefone" placeholder="Novo Telefone" />
+      <button type="submit">Atualizar</button>
+    </form>
+
     <script>
       // Função para excluir um cliente
       function deleteClient(clientId) {
@@ -125,6 +134,64 @@
             tr.setAttribute("data-id", client.id);
             tbody.appendChild(tr);
           });
+      });
+
+      // Função para atualizar um cliente
+      document.addEventListener("DOMContentLoaded", function () {
+        function updateClient(clientId, newData) {
+          const url = `http://localhost:3000/clientes/${clientId}`; // Inclua o ID na URL
+
+          fetch(url, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newData),
+          })
+            .then((response) => {
+              if (response.status === 200) {
+                const row = document.querySelector(`tr[data-id="${clientId}"]`);
+                if (row) {
+                  const cells = row.getElementsByTagName("td");
+                  cells[1].textContent = newData.novoNome;
+                  cells[2].textContent = newData.novoEmail;
+                  cells[3].textContent = newData.novoTelefone;
+                }
+              } else {
+                console.error("Erro ao atualizar o cliente.");
+              }
+            })
+            .catch((error) => {
+              console.error("Erro ao atualizar o cliente:", error);
+            });
+        }
+
+        const updateForm = document.getElementById("update-form");
+
+        updateForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          const clientId = document.querySelector(
+            "input[name='clientId']"
+          ).value;
+          const novoNome = document.querySelector(
+            "input[name='novoNome']"
+          ).value;
+          const novoEmail = document.querySelector(
+            "input[name='novoEmail']"
+          ).value;
+          const novoTelefone = document.querySelector(
+            "input[name='novoTelefone']"
+          ).value;
+
+          console.log("clientId:", clientId);
+          console.log("novoNome:", novoNome);
+          console.log("novoEmail:", novoEmail);
+          console.log("novoTelefone:", novoTelefone);
+          updateClient(clientId, { novoNome, novoEmail, novoTelefone });
+
+          updateForm.reset();
+        });
       });
     </script>
   </body>

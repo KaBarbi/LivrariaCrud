@@ -53,10 +53,10 @@ app.put("/clientes/:id", (req, res) => {
   const id = req.params.id;
 
   // Obter os dados do cliente a serem atualizados
-  const { nome, email, senha, telefone } = req.body;
+  const { novoNome, novoEmail, novoTelefone } = req.body;
 
   // Executar a consulta SQL para atualizar o cliente
-  const sql = `UPDATE clientes SET nome = '${nome}', email = '${email}', senha = '${senha}', telefone = '${telefone}' WHERE id = ${id}`;
+  const sql = `UPDATE clientes SET nome = '${novoNome}', email = '${novoEmail}', telefone = '${novoTelefone}' WHERE id = ${id}`;
 
   connection.query(sql, (err, result) => {
     if (err) {
