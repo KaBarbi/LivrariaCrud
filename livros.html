@@ -23,9 +23,8 @@
       <tbody></tbody>
     </table>
 
-    <!-- cadastrar novo Livro -->
     <h1>Cadastrar Novo Livro</h1>
-    <form action="/livros" method="post">
+    <form id="new-book-form" action="/livros" method="post">
       <input type="text" name="nome" placeholder="Nome do Livro" />
       <input type="text" name="autor" placeholder="Autor" />
       <input type="text" name="genero" placeholder="Gênero" />
@@ -34,7 +33,6 @@
         name="ano_lancamento"
         placeholder="Ano de lançamento"
       />
-      <input type="text" name="excluirlivro" placeholder="Excluir" />
       <button type="submit">Adicionar</button>
     </form>
 
@@ -99,6 +97,56 @@
             tbody.appendChild(tr);
           });
         });
+
+      // Cadastrar novo livro
+      const form = document.getElementById("new-book-form");
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        // Obter os dados do formulário
+        const nome = document.querySelector("input[name='nome']").value;
+        const autor = document.querySelector("input[name='autor']").value;
+        const genero = document.querySelector("input[name='genero']").value;
+        const ano_lancamento = document.querySelector(
+          "input[name='ano_lancamento']"
+        ).value;
+
+        // Enviar os dados para o servidor
+        const url = "http://localhost:3000/livros";
+        const data = {
+          nome,
+          autor,
+          genero,
+          ano_lancamento,
+        };
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((book) => {
+            // Adicionar o novo livro à lista de livros
+            const tbody = document.querySelector("tbody");
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+        <td>${book.id}</td>
+        <td>${book.nome}</td>
+        <td>${book.autor}</td>
+        <td>${book.genero}</td>
+        <td>${book.ano_lancamento}</td>
+        <td>
+          <button onclick="deleteBook(${book.id})">Excluir</button>
+        </td>
+      `;
+            tr.setAttribute("data-id", book.id);
+            tbody.appendChild(tr);
+          });
+      });
     </script>
   </body>
 </html>
