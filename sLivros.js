@@ -22,8 +22,8 @@ connection.connect((err) => {
 });
 
 // Rota para obter todos os clientes
-app.get("/clientes", (req, res) => {
-  const sql = "SELECT * FROM clientes";
+app.get("/livros", (req, res) => {
+  const sql = "SELECT * FROM livros";
 
   connection.query(sql, (err, results) => {
     if (err) {
@@ -36,14 +36,43 @@ app.get("/clientes", (req, res) => {
 });
 
 // Rota para adicionar um novo cliente
-app.post("/clientes", (req, res) => {
-  const { nome, email, senha, telefone } = req.body;
+app.post("/livros", (req, res) => {
+  const { nome, autor, genero, ano_lancamento } = req.body;
 
-  const sql = `INSERT INTO clientes (nome, email, senha, telefone) VALUES ('${nome}', '${email}', '${senha}', '${telefone}')`;
+  const sql = `INSERT INTO livros (nome, autor, genero, ano_lancamento) VALUES (?, ?, ?, ?)`;
 
-  connection.query(sql, (err, result) => {
-    if (err) throw err;
-    res.send("Cliente adicionado com sucesso!");
+  const params = [nome, autor, genero, ano_lancamento];
+
+  connection.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    res.send("livro adicionado com sucesso!");
+  });
+});
+
+// Rota para atualizar um cliente
+app.put("/livro/:id", (req, res) => {
+  // Obter o ID do cliente da solicitação
+  const id = req.params.id;
+  // Obter os dados do cliente a serem atualizados
+
+  const { novoNome, novoAutor, novoGenero, novoAno_lancamento } = req.body;
+
+  const sql = `UPDATE livros SET nome = '${novoNome}', autor = '${novoAutor}', genero = '${novoGenero}', ano_lancamento = '${novoAno_lancamento}' WHERE id = ${id}`;
+
+  const params = [novoNome, novoAutor, novoGenero, novoAno_lancamento, id];
+
+  connection.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    // Responder com um código de status 200
+
+    res.status(200).send();
   });
 });
 
@@ -70,12 +99,15 @@ app.put("/clientes/:id", (req, res) => {
 });
 
 // Rota para deletar um cliente
-app.delete("/clientes/:id", (req, res) => {
+app.delete("/livros/:id", (req, res) => {
   // Obter o ID do cliente da solicitação
   const id = req.params.id; // Executar a consulta SQL para excluir o cliente
 
-  const sql = `DELETE FROM clientes WHERE id = ${id}`;
-  connection.query(sql, (err, result) => {
+  const sql = `DELETE FROM livros WHERE id = ?`;
+
+  const params = [id];
+
+  connection.query(sql, params, (err, result) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;

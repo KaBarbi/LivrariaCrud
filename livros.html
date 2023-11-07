@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>livros</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- cadastro livro-->
+    <h1>Cadastro de Livro</h1>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Nome do Livro</th>
+          <th>Autor</th>
+          <th>Gênero</th>
+          <th>Ano de Lançamento</th>
+          <th>excluir</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- cadastrar novo Livro -->
+    <h1>Cadastrar Novo Livro</h1>
+    <form action="/livros" method="post">
+      <input type="text" name="nome" placeholder="Nome do Livro" />
+      <input type="text" name="autor" placeholder="Autor" />
+      <input type="text" name="genero" placeholder="Gênero" />
+      <input
+        type="text"
+        name="ano_lancamento"
+        placeholder="Ano de lançamento"
+      />
+      <input type="text" name="excluirlivro" placeholder="Excluir" />
+      <button type="submit">Adicionar</button>
+    </form>
+
+    <h1>Atualizar Livro</h1>
+    <form id="update-form">
+      <input type="idlivro" name="livroId" placeholder="ID do Livro" />
+      <input type="novolivro" name="novoNome" placeholder="Novo Livro" />
+      <input type="genero" name="novogenero" placeholder="Novo Gênero" />
+      <input
+        type="anolançamento"
+        name="novoTelefone"
+        placeholder="Novo ano de lançamento"
+      />
+
+      <button type="submit">Atualizar</button>
+    </form>
+    <script>
+      // Função para excluir um livro
+      function deleteClient(bookid) {
+        const url = `http://localhost:3000/livros/${bookid}`;
+
+        fetch(url, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (response.status === 204) {
+              // Remover a linha da tabela se a exclusão for bem-sucedida
+              const row = document.querySelector(`tr[data-id="${bookid}"]`);
+              if (row) {
+                row.remove();
+              }
+            } else {
+              console.error("Erro ao excluir o livro.");
+            }
+          })
+          .catch((error) => {
+            console.error("Erro ao excluir o livro:", error);
+          });
+      }
+
+      // Listar todos os livros cadastrados
+      const url = "http://localhost:3000/livros";
+
+      fetch(url)
+        .then((response) => response.json())
+        .then((books) => {
+          // Renderizar a lista de livros
+          const tbody = document.querySelector("tbody");
+          books.forEach((book) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+    <td>${book.id}</td>
+    <td>${book.nome}</td>
+    <td>${book.autor}</td>
+    <td>${book.genero}</td>
+    <td>${book.ano_lancamento}</td>
+    <td>
+      <button onclick="deleteClient(${book.id})">Excluir</button>
+    </td>
+  `;
+            tr.setAttribute("data-id", book.id);
+            tbody.appendChild(tr);
+          });
+        });
+    </script>
+  </body>
+</html>
