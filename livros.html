@@ -38,15 +38,15 @@
 
     <h1>Atualizar Livro</h1>
     <form id="update-form">
-      <input type="idlivro" name="livroId" placeholder="ID do Livro" />
-      <input type="novolivro" name="novoNome" placeholder="Novo Livro" />
-      <input type="genero" name="novogenero" placeholder="Novo Gênero" />
+      <input type="text" name="livroId" placeholder="ID do Livro" />
+      <input type="text" name="novoNome" placeholder="Novo Nome do Livro" />
+      <input type="text" name="novoAutor" placeholder="Novo Autor" />
+      <input type="text" name="novoGenero" placeholder="Novo Gênero" />
       <input
-        type="anolançamento"
-        name="novoTelefone"
-        placeholder="Novo ano de lançamento"
+        type="text"
+        name="novoAno_lancamento"
+        placeholder="Novo Ano de Lançamento"
       />
-
       <button type="submit">Atualizar</button>
     </form>
     <script>
@@ -146,6 +146,64 @@
             tr.setAttribute("data-id", book.id);
             tbody.appendChild(tr);
           });
+      });
+
+      // Função para atualizar um livro
+      function updateBook(livroId, newData) {
+        const url = `http://localhost:3000/livros/${livroId}`;
+
+        fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newData),
+        })
+          .then((response) => {
+            if (response.status === 200) {
+              const row = document.querySelector(`tr[data-id="${livroId}"]`);
+              if (row) {
+                const cells = row.getElementsByTagName("td");
+                cells[1].textContent = newData.novoNome;
+                cells[2].textContent = newData.novoAutor;
+                cells[3].textContent = newData.novoGenero;
+                cells[4].textContent = newData.novoAno_lancamento;
+              }
+            } else {
+              console.error("Erro ao atualizar o livro.");
+            }
+          })
+          .catch((error) => {
+            console.error("Erro ao atualizar o livro:", error);
+          });
+      }
+
+      // Adicione um evento de escuta para o formulário de atualização
+      const updateForm = document.getElementById("update-form");
+
+      updateForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const livroId = document.querySelector("input[name='livroId']").value;
+        const novoNome = document.querySelector("input[name='novoNome']").value;
+        const novoAutor = document.querySelector(
+          "input[name='novoAutor']"
+        ).value;
+        const novoGenero = document.querySelector(
+          "input[name='novoGenero']"
+        ).value;
+        const novoAno_lancamento = document.querySelector(
+          "input[name='novoAno_lancamento']"
+        ).value;
+
+        updateBook(livroId, {
+          novoNome,
+          novoAutor,
+          novoGenero,
+          novoAno_lancamento,
+        });
+
+        updateForm.reset();
       });
     </script>
   </body>

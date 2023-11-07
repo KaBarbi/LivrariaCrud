@@ -53,25 +53,24 @@ app.post("/livros", (req, res) => {
   });
 });
 
-// Rota para atualizar um cliente
-app.put("/livro/:id", (req, res) => {
-  // Obter o ID do cliente da solicitação
+// Rota para atualizar um livro
+app.put("/livros/:id", (req, res) => {
+  // Obter o ID do livro da solicitação
   const id = req.params.id;
-  // Obter os dados do cliente a serem atualizados
 
+  // Obter os dados do livro a serem atualizados
   const { novoNome, novoAutor, novoGenero, novoAno_lancamento } = req.body;
 
+  // Executar a consulta SQL para atualizar o livro
   const sql = `UPDATE livros SET nome = '${novoNome}', autor = '${novoAutor}', genero = '${novoGenero}', ano_lancamento = '${novoAno_lancamento}' WHERE id = ${id}`;
 
-  const params = [novoNome, novoAutor, novoGenero, novoAno_lancamento, id];
-
-  connection.query(sql, params, (err, result) => {
+  connection.query(sql, (err, result) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
     }
-    // Responder com um código de status 200
 
+    // Responder com um código de status 200
     res.status(200).send();
   });
 });
