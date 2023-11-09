@@ -102,7 +102,86 @@ app.get("/livros", (req, res) => {
   });
 });
 
+// Rota para adicionar um novo cliente
+app.post("/livros", (req, res) => {
+  const { nome, autor, genero, ano_lancamento } = req.body;
 
+  const sql = `INSERT INTO livros (nome, autor, genero, ano_lancamento) VALUES (?, ?, ?, ?)`;
+
+  const params = [nome, autor, genero, ano_lancamento];
+
+  connection.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    res.send("livro adicionado com sucesso!");
+  });
+});
+
+// Rota para atualizar um livro
+app.put("/livros/:id", (req, res) => {
+  // Obter o ID do livro da solicitação
+  const id = req.params.id;
+
+  // Obter os dados do livro a serem atualizados
+  const { novoNome, novoAutor, novoGenero, novoAno_lancamento } = req.body;
+
+  // Executar a consulta SQL para atualizar o livro
+  const sql = `UPDATE livros SET nome = '${novoNome}', autor = '${novoAutor}', genero = '${novoGenero}', ano_lancamento = '${novoAno_lancamento}' WHERE id = ${id}`;
+
+  connection.query(sql, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    // Responder com um código de status 200
+    res.status(200).send();
+  });
+});
+
+// Rota para atualizar um cliente
+app.put("/clientes/:id", (req, res) => {
+  // Obter o ID do cliente da solicitação
+  const id = req.params.id;
+
+  // Obter os dados do cliente a serem atualizados
+  const { novoNome, novoEmail, novoTelefone } = req.body;
+
+  // Executar a consulta SQL para atualizar o cliente
+  const sql = `UPDATE clientes SET nome = '${novoNome}', email = '${novoEmail}', telefone = '${novoTelefone}' WHERE id = ${id}`;
+
+  connection.query(sql, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    // Responder com um código de status 200
+    res.status(200).send();
+  });
+});
+
+// Rota para deletar um cliente
+app.delete("/livros/:id", (req, res) => {
+  // Obter o ID do cliente da solicitação
+  const id = req.params.id; // Executar a consulta SQL para excluir o cliente
+
+  const sql = `DELETE FROM livros WHERE id = ?`;
+
+  const params = [id];
+
+  connection.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    } // Responder com um código de status 200
+
+    res.status(200).send();
+  });
+});
 
 app.listen(port, () => {
   console.log(`Servidor está rodando na porta ${port}`);
