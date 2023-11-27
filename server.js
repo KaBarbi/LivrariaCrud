@@ -164,7 +164,7 @@ app.put("/clientes/:id", (req, res) => {
   });
 });
 
-// Rota para deletar um cliente
+// Rota para deletar um livro
 app.delete("/livros/:id", (req, res) => {
   // Obter o ID do cliente da solicitação
   const id = req.params.id; // Executar a consulta SQL para excluir o cliente
@@ -246,6 +246,39 @@ app.post("/empres", (req, res) => {
     }
 
     res.send("emprestimo adicionado com sucesso!");
+  });
+});
+
+//  ROta para atualizar um emprestimo
+app.put("/empres/:id", (req, res) => {
+  const id = req.params.id;
+  const { id_cliente, id_livro, data_emprestimo, data_devolucao, status } =
+    req.body;
+
+  const sql = `UPDATE empres SET 
+    id_cliente = ?,
+    id_livro = ?,
+    data_emprestimo = ?,
+    data_devolucao = ?,
+    status = ?
+    WHERE id = ?`;
+
+  const params = [
+    id_cliente,
+    id_livro,
+    data_emprestimo,
+    data_devolucao,
+    status,
+    id,
+  ];
+
+  connection.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    res.status(200).send("Empréstimo atualizado com sucesso!");
   });
 });
 
