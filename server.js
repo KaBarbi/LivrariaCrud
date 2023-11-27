@@ -224,6 +224,30 @@ app.delete("/empres/:id", (req, res) => {
   });
 });
 
+// Rota para adicionar um novo emprestimo
+app.post("/empres", (req, res) => {
+  const { id_cliente, id_livro, data_emprestimo, data_devolucao, status } =
+    req.body;
+
+  const sql = `INSERT INTO empres (id_cliente, id_livro, data_emprestimo, data_devolucao, status) VALUES (?, ?, ?, ?, ?)`;
+
+  const params = [
+    id_cliente,
+    id_livro,
+    data_emprestimo,
+    data_devolucao,
+    status,
+  ];
+
+  connection.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    res.send("emprestimo adicionado com sucesso!");
+  });
+});
 
 app.listen(port, () => {
   console.log(`Servidor está rodando na porta ${port}`);
