@@ -46,8 +46,13 @@
 
     <!-- Atualizar Empréstimo -->
     <h1>Atualizar Empréstimo</h1>
-    <form id="update-emprestimo-form">
-      <input type="text" name="emprestimoId" placeholder="ID do Empréstimo" />
+    <form id="update-emprestimo-form" onsubmit="updateEmprestimo(event)">
+      <input
+        type="text"
+        name="emprestimoId"
+        placeholder="ID do Empréstimo"
+        required
+      />
       <input type="text" name="novoIdCliente" placeholder="Novo ID Cliente" />
       <input type="text" name="novoIdLivro" placeholder="Novo ID Livro" />
       <input
@@ -143,6 +148,47 @@
           .then((response) => {
             if (!response.ok) {
               throw new Error("Erro ao adicionar empréstimo");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data); // Log da resposta do servidor
+            // Atualizar a interface ou fazer algo após o sucesso
+          })
+          .catch((error) => {
+            console.error("Ocorreu um erro:", error);
+          });
+      }
+
+      // funcionalidade de pu para atualizar o emrpestimo
+      function updateEmprestimo(event) {
+        event.preventDefault(); // Evitar o comportamento padrão do formulário
+
+        const form = document.getElementById("update-emprestimo-form");
+        const formData = new FormData(form);
+
+        const emprestimoId = formData.get("emprestimoId"); // Obtendo o ID do empréstimo a ser atualizado
+        const updateData = {
+          // Obtendo os dados a serem atualizados
+          id_cliente: formData.get("novoIdCliente"),
+          id_livro: formData.get("novoIdLivro"),
+          data_emprestimo: formData.get("novaDataEmprestimo"),
+          data_devolucao: formData.get("novaDataDevolucao"),
+          status: formData.get("novoStatus"),
+        };
+
+        const requestOptions = {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updateData),
+        };
+
+        fetch(`${urlEmprestimos}/${emprestimoId}`, requestOptions)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Erro ao atualizar empréstimo");
             }
             return response.json();
           })
