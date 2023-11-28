@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Empréstimos</title>
+  </head>
+  <body>
+    <!-- Lista de Empréstimos -->
+    <h1>Lista de Empréstimos</h1>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>ID Cliente</th>
+          <th>ID Livro</th>
+          <th>Data Empréstimo</th>
+          <th>Data Devolução</th>
+          <th>Status</th>
+          <th>Excluir</th>
+        </tr>
+      </thead>
+      <tbody id="emprestimos-list"></tbody>
+    </table>
+
+    <!-- Cadastrar Novo Empréstimo -->
+    <h1>Cadastrar Novo Empréstimo</h1>
+    <form id="new-emprestimo-form" onsubmit="submitForm(event)">
+      <input type="text" name="id_cliente" placeholder="ID Cliente" required />
+      <input type="text" name="id_livro" placeholder="ID Livro" required />
+      <input
+        type="text"
+        name="data_emprestimo"
+        placeholder="Data Empréstimo"
+        required
+      />
+      <input
+        type="text"
+        name="data_devolucao"
+        placeholder="Data Devolução"
+        required
+      />
+      <input type="text" name="status" placeholder="Status" required />
+      <button type="submit">Adicionar Empréstimo</button>
+    </form>
+
+    <!-- Atualizar Empréstimo -->
+    <h1>Atualizar Empréstimo</h1>
+    <form id="update-emprestimo-form" onsubmit="updateEmprestimo(event)">
+      <input
+        type="text"
+        name="emprestimoId"
+        placeholder="ID do Empréstimo"
+        required
+      />
+      <input type="text" name="novoIdCliente" placeholder="Novo ID Cliente" />
+      <input type="text" name="novoIdLivro" placeholder="Novo ID Livro" />
+      <input
+        type="text"
+        name="novaDataEmprestimo"
+        placeholder="Nova Data Empréstimo"
+      />
+      <input
+        type="text"
+        name="novaDataDevolucao"
+        placeholder="Nova Data Devolução"
+      />
+      <input type="text" name="novoStatus" placeholder="Novo Status" />
+      <button type="submit">Atualizar Empréstimo</button>
+    </form>
+
+    <script>
+      const urlEmprestimos = "http://localhost:3000/empres";
+
+      // Função para deletar um empréstimo
+      function deleteEmprestimo(id) {
+        const requestOptions = {
+          method: "DELETE",
+        };
+
+        fetch(`${urlEmprestimos}/${id}`, requestOptions)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Erro ao excluir o registro");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data.message);
+            // Atualizar a interface após a exclusão
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (row) {
+              row.remove();
+            }
+          })
+          .catch((error) => {
+            console.error("Ocorreu um erro:", error);
+          });
+      }
+
+      // Listar todos os empréstimos cadastrados
+      fetch(urlEmprestimos)
+        .then((response) => response.json())
+        .then((emprestimos) => {
+          const tbody = document.getElementById("emprestimos-list");
+          emprestimos.forEach((emprestimo) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${emprestimo.id}</td>
+              <td>${emprestimo.id_cliente}</td>
+              <td>${emprestimo.id_livro}</td>
+              <td>${emprestimo.data_emprestimo}</td>
+              <td>${emprestimo.data_devolucao}</td>
+              <td>${emprestimo.status}</td>
+              <td>
+                <button onclick="deleteEmprestimo(${emprestimo.id})">Excluir</button>
+              </td>
+            `;
+            tr.setAttribute("data-id", emprestimo.id);
+            tbody.appendChild(tr);
+          });
+        })
+        .catch((error) => {
+          console.error("Ocorreu um erro:", error);
+        });
+
+      //  adicionar novo emprestimo
+      function submitForm(event) {
+        event.preventDefault(); // Evitar o comportamento padrão do formulário
+
+        const form = document.getElementById("new-emprestimo-form");
+        const formData = new FormData(form);
+
+        const emprestimoData = {};
+        for (let [key, value] of formData.entries()) {
+          emprestimoData[key] = value;
+        }
+
+        const requestOptions = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(emprestimoData), // Corrigindo o envio para JSON
+        };
+
+        fetch(urlEmprestimos, requestOptions)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Erro ao adicionar empréstimo");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data); // Log da resposta do servidor
+            // Atualizar a interface ou fazer algo após o sucesso
+          })
+          .catch((error) => {
+            console.error("Ocorreu um erro:", error);
+          });
+      }
+
+      // funcionalidade de pu para atualizar o emrpestimo
+      function updateEmprestimo(event) {
+        event.preventDefault(); // Evitar o comportamento padrão do formulário
+
+        const form = document.getElementById("update-emprestimo-form");
+        const formData = new FormData(form);
+
+        const emprestimoId = formData.get("emprestimoId"); // Obtendo o ID do empréstimo a ser atualizado
+        const updateData = {
+          // Obtendo os dados a serem atualizados
+          id_cliente: formData.get("novoIdCliente"),
+          id_livro: formData.get("novoIdLivro"),
+          data_emprestimo: formData.get("novaDataEmprestimo"),
+          data_devolucao: formData.get("novaDataDevolucao"),
+          status: formData.get("novoStatus"),
+        };
+
+        const requestOptions = {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updateData),
+        };
+
+        fetch(`${urlEmprestimos}/${emprestimoId}`, requestOptions)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Erro ao atualizar empréstimo");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data); // Log da resposta do servidor
+            // Atualizar a interface ou fazer algo após o sucesso
+          })
+          .catch((error) => {
+            console.error("Ocorreu um erro:", error);
+          });
+      }
+    </script>
+  </body>
+</html>

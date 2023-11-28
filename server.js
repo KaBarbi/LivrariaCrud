@@ -5,7 +5,7 @@ const cors = require("cors"); // Importe o pacote CORS
 
 const app = express();
 const port = 3000;
-
+// configurado para aceitar solicitações POST
 app.use(bodyParser.json());
 app.use(cors());
 // Configuração da conexão MySQL
@@ -88,7 +88,7 @@ app.delete("/clientes/:id", (req, res) => {
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Rotas livros
 
-// Rota para obter todos os clientes
+// Rota para obter todos os livros
 app.get("/livros", (req, res) => {
   const sql = "SELECT * FROM livros";
 
@@ -102,7 +102,7 @@ app.get("/livros", (req, res) => {
   });
 });
 
-// Rota para adicionar um novo cliente
+// Rota para adicionar um novo livro
 app.post("/livros", (req, res) => {
   const { nome, autor, genero, ano_lancamento } = req.body;
 
@@ -164,7 +164,7 @@ app.put("/clientes/:id", (req, res) => {
   });
 });
 
-// Rota para deletar um cliente
+// Rota para deletar um livro
 app.delete("/livros/:id", (req, res) => {
   // Obter o ID do cliente da solicitação
   const id = req.params.id; // Executar a consulta SQL para excluir o cliente
@@ -180,6 +180,92 @@ app.delete("/livros/:id", (req, res) => {
     } // Responder com um código de status 200
 
     res.status(200).send();
+  });
+});
+
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Rotas emprestimos
+
+app.get("/empres", (req, res) => {
+  const sql = "SELECT * FROM empres";
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erro na consulta SQL:", err);
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    res.json(results);
+  });
+});
+
+// requisisção de delete do emprestimo
+app.delete("/empres/:id", (req, res) => {
+  const id = req.params.id;
+  const sql = "DELETE FROM empres WHERE id = ?";
+
+  connection.query(sql, id, (err, result) => {
+    if (err) {
+      console.error("Erro na consulta SQL:", err);
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    if (result.affectedRows === 0) {
+      res.status(404).json({ message: "Registro não encontrado" });
+      return;
+    }
+
+    res.json({ message: "Registro excluído com sucesso" });
+  });
+});
+
+// Rota para adicionar um novo emprestimo
+app.post("/empres", (req, res) => {
+  // Parsear os dados da solicitação
+  const { id_cliente, id_livro, data_emprestimo, data_devolucao, status } = req.body;
+
+  // Executar a consulta SQL para inserir o empréstimo
+  const sql = `INSERT INTO empres (id_cliente, id_livro, data_emprestimo, data_devolucao, status) VALUES (?, ?, ?, ?, ?)`;
+
+  connection.query(sql, [id_cliente, id_livro, data_emprestimo, data_devolucao, status], (err, result) => {
+    if (err) throw err;
+    res.send("Empréstimo adicionado com sucesso!");
+  });
+});
+
+
+//  ROta para atualizar um emprestimo
+app.put("/empres/:id", (req, res) => {
+  const id = req.params.id;
+  const { id_cliente, id_livro, data_emprestimo, data_devolucao, status } =
+    req.body;
+
+  const sql = `UPDATE empres SET 
+    id_cliente = ?,
+    id_livro = ?,
+    data_emprestimo = ?,
+    data_devolucao = ?,
+    status = ?
+    WHERE id = ?`;
+
+  const params = [
+    id_cliente,
+    id_livro,
+    data_emprestimo,
+    data_devolucao,
+    status,
+    id,
+  ];
+
+  connection.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    res.status(200).send("Empréstimo atualizado com sucesso!");
   });
 });
 
