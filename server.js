@@ -5,7 +5,7 @@ const cors = require("cors"); // Importe o pacote CORS
 
 const app = express();
 const port = 3000;
-
+// configurado para aceitar solicitações POST
 app.use(bodyParser.json());
 app.use(cors());
 // Configuração da conexão MySQL
@@ -187,7 +187,6 @@ app.delete("/livros/:id", (req, res) => {
 // Rotas emprestimos
 
 app.get("/empres", (req, res) => {
-  console.log("Recebida solicitação GET para /empres");
   const sql = "SELECT * FROM empres";
 
   connection.query(sql, (err, results) => {
@@ -203,8 +202,6 @@ app.get("/empres", (req, res) => {
 
 // requisisção de delete do emprestimo
 app.delete("/empres/:id", (req, res) => {
-  console.log("Recebida solicitação DELETE para /empres");
-
   const id = req.params.id;
   const sql = "DELETE FROM empres WHERE id = ?";
 
@@ -226,28 +223,18 @@ app.delete("/empres/:id", (req, res) => {
 
 // Rota para adicionar um novo emprestimo
 app.post("/empres", (req, res) => {
-  const { id_cliente, id_livro, data_emprestimo, data_devolucao, status } =
-    req.body;
+  // Parsear os dados da solicitação
+  const { id_cliente, id_livro, data_emprestimo, data_devolucao, status } = req.body;
 
+  // Executar a consulta SQL para inserir o empréstimo
   const sql = `INSERT INTO empres (id_cliente, id_livro, data_emprestimo, data_devolucao, status) VALUES (?, ?, ?, ?, ?)`;
 
-  const params = [
-    id_cliente,
-    id_livro,
-    data_emprestimo,
-    data_devolucao,
-    status,
-  ];
-
-  connection.query(sql, params, (err, result) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-
-    res.send("emprestimo adicionado com sucesso!");
+  connection.query(sql, [id_cliente, id_livro, data_emprestimo, data_devolucao, status], (err, result) => {
+    if (err) throw err;
+    res.send("Empréstimo adicionado com sucesso!");
   });
 });
+
 
 //  ROta para atualizar um emprestimo
 app.put("/empres/:id", (req, res) => {
